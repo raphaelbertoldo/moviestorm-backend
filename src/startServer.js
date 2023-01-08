@@ -16,7 +16,7 @@ async function startServer({ typeDefs, resolvers }) {
   const { NEO4J_URI, NEO4J_PASSWORD, PORT } = process.env;
 
   const driver = neo4j.driver(
-    "bolt://localhost:7687",
+    NEO4J_URI,
     neo4j.auth.basic("neo4j", NEO4J_PASSWORD)
   );
 
