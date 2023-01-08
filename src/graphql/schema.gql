@@ -1,0 +1,93 @@
+directive @constraint(
+  min: Int
+  max: Int
+) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+# @fulltext(indexes: [{ indexName: "MovieTitle", fields: ["title"] }])
+type Movie {
+  id: ID! @id(autogenerate: true)
+  title: String!
+  plot: String!
+  year: Int!
+  runtime: Int!
+  released: Date!
+  countries: [String!]!
+  languages: [String!]!
+  actors: [Actor!]!
+    @relationship(type: "ACTED_IN", direction: IN, properties: "ActedIn")
+  director: Director!
+    @relationship(type: "DIRECTED", direction: IN, properties: "Directed")
+  genre: Genre!
+    @relationship(type: "GENRE", direction: OUT, properties: "GenreName")
+
+  similarMovies: [Movie!]!
+    @cypher(
+      statement: """
+      MATCH (this:Movie)-[:GENRE]->(g:Genre)<-[:GENRE]-(m:Movie)
+      WHERE id(this) = $cypherParams.movieId
+      AND id(m) <> $cypherParams.movieId
+      RETURN m
+      """
+    )
+}
+
+type Actor {
+  ActorId: ID! @id(autogenerate: true)
+  name: String!
+  movies: [Movie!]!
+    @relationship(type: "ACTED_IN", direction: OUT, properties: "ActedIn")
+}
+
+type Director {
+  id: ID! @id(autogenerate: true)
+  name: String!
+  movies: [Movie!]!
+    @relationship(type: "DIRECTED", direction: OUT, properties: "Directed")
+}
+
+type Genre {
+  id: ID! @id(autogenerate: true) @alias(property: "dbGenreId") ##Esse campo gera uma novo nome para o campo no banco de dados
+  name: String! @unique
+  movies: [Movie!]!
+    @relationship(type: "GENRE", direction: IN, properties: "GenreName")
+}
+
+type User {
+  id: ID! @id(autogenerate: true)
+  name: String!
+  username: String! @unique
+  rateds: [Movie!]!
+    @relationship(type: "RATED", direction: OUT, properties: "Rating")
+  recommendedMovies: [Movie!]!
+    @cypher(
+      statement: """
+      MATCH (u:User)-[r:RATED]->(m:Movie)
+      WHERE id(u) = u.id
+      AND r.rating >= 4
+      WITH collect(m) as likedMovies
+      UNWIND likedMovies as likedMovie
+      MATCH (likedMovie)-[:GENRE]->(g:Genre)<-[:GENRE]-(recommended:Movie)
+      WHERE NOT recommended IN likedMovies
+      RETURN recommended, count(*) as score
+      ORDER BY score DESC
+      LIMIT 10
+      """
+    )
+}
+
+interface ActedIn @relationshipProperties {
+  role: String!
+}
+
+interface Directed @relationshipProperties {
+  movie: String!
+}
+
+interface GenreName @relationshipProperties {
+  genre: String!
+}
+
+interface Rating @relationshipProperties {
+  rating: Float! @constraint(min: 0, max: 5)
+  timestamp: DateTime! @timestamp(operations: [CREATE, UPDATE])
+}
