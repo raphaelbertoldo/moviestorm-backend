@@ -23,24 +23,22 @@ type Movie {
   similarMovies: [Movie!]!
     @cypher(
       statement: """
-      MATCH (this:Movie)-[:GENRE]->(g:Genre)<-[:GENRE]-(m:Movie)
-      WHERE id(this) = $cypherParams.movieId
-      AND id(m) <> $cypherParams.movieId
-      RETURN m
+      MATCH (m:Movie)-[:GENRE]->(g:Genre)<-[:GENRE]-(s:Movie)
+      RETURN s
       """
     )
 }
 
 type Actor {
   ActorId: ID! @id(autogenerate: true)
-  name: String!
+  name: String! @unique
   movies: [Movie!]!
     @relationship(type: "ACTED_IN", direction: OUT, properties: "ActedIn")
 }
 
 type Director {
   id: ID! @id(autogenerate: true)
-  name: String!
+  name: String! @unique
   movies: [Movie!]!
     @relationship(type: "DIRECTED", direction: OUT, properties: "Directed")
 }
@@ -91,3 +89,25 @@ interface Rating @relationshipProperties {
   rating: Float! @constraint(min: 0, max: 5)
   timestamp: DateTime! @timestamp(operations: [CREATE, UPDATE])
 }
+
+type Query {
+  searchMovies(title: String!): [Movie]
+    @cypher(
+      statement: """
+      CALL db.index.fulltext.queryNodes(\"titlesMovie\", $title) YIELD node RETURN node
+      """
+    )
+
+  fuzzySearchMovies(title: String!): [Movie]
+    @cypher(
+      statement: """
+       MATCH (m:Movie)
+      WHERE m.title =~ '(?i).*' + $title + '.*'
+       RETURN m
+      """
+    )
+}
+
+# CREATE FULLTEXT INDEX titlesMovie FOR (n:Movie) ON EACH [n.title, n.plot]  - Criar index
+
+# CALL db.index.fulltext.queryNodes("titlesMovie", "param") YIELD node, score RETURN node.title, node.plot, score - Retornar filmes que cotem o 'param'

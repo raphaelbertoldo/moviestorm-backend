@@ -25,6 +25,29 @@ async function startServer({ typeDefs, resolvers }) {
     driver,
     plugins: {
       subscriptions: new Neo4jGraphQLSubscriptionsSingleInstancePlugin(),
+      onSchemaChange: async (event) => {
+        console.log("O index fo criado...");
+        console.log(
+          "🚀 ~ file: startServer.js:29 ~ onSchemaChange: ~ event",
+          event
+        );
+        const schema = event.fullSchema;
+        const { neo4j } = event;
+        const hasFulltextIndex = schema.indexOf("@fulltext") !== -1;
+        const indexExists = await neo4j.query(
+          `
+        CALL db.indexes
+      `,
+          null,
+          {}
+        );
+        if (indexExists.records.length === 0 && hasFulltextIndex) {
+          await neo4j.query(createFulltextIndex, null, {});
+        }
+        if (indexExists.records.length > 0 && !hasFulltextIndex) {
+          await neo4j.query(updateFulltextIndex, null, {});
+        }
+      },
     },
   });
 
