@@ -54,6 +54,7 @@ type Genre {
 type User {
   id: ID! @id(autogenerate: true)
   name: String!
+  password: String!
   username: String! @unique
   rateds: [Movie!]!
     @relationship(type: "RATED", direction: OUT, properties: "Rating")
