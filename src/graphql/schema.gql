@@ -8,6 +8,7 @@ type Movie {
   id: ID! @id(autogenerate: true)
   title: String!
   plot: String!
+  poster: String!
   year: Int!
   runtime: Int!
   released: Date!
