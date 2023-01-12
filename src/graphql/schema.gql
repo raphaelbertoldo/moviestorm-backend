@@ -58,11 +58,11 @@ type User {
   username: String! @unique
   rateds: [Movie!]!
     @relationship(type: "RATED", direction: OUT, properties: "Rating")
-  recommendedMovies: [Movie!]!
+  recommendedMovies(id: Int): [Movie!]!
     @cypher(
       statement: """
       MATCH (u:User)-[r:RATED]->(m:Movie)
-      WHERE id(u) = u.id
+      WHERE id(u) = $id
       AND r.rating >= 4
       WITH collect(m) as likedMovies
       UNWIND likedMovies as likedMovie
