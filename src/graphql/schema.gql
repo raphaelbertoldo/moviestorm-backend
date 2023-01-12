@@ -52,7 +52,7 @@ type Genre {
 }
 
 type User {
-  id: ID! @id(autogenerate: true)
+  userId: ID! @id(autogenerate: true)
   name: String!
   password: String!
   username: String! @unique
