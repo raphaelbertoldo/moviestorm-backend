@@ -21,11 +21,13 @@ type Movie {
   genre: Genre!
     @relationship(type: "GENRE", direction: OUT, properties: "GenreName")
 
-  similarMovies: [Movie!]!
+  similarMovies(id: String): [Movie!]!
     @cypher(
       statement: """
-      MATCH (m:Movie)-[:GENRE]->(g:Genre)<-[:GENRE]-(s:Movie)
-      RETURN s
+      MATCH (m:Movie)-[:GENRE]->(g:Genre)
+      MATCH (g)<-[:GENRE]-(s:Movie)
+      WHERE m <> s AND m.id = $id
+      RETURN DISTINCT s
       """
     )
 }
