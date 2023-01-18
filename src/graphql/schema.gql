@@ -63,13 +63,14 @@ type User {
   recommendedMovies(username: String): [Movie!]!
     @cypher(
       statement: """
-      MATCH (u:User)-[r:RATED]->(m:Movie)
+            MATCH (u:User)-[r:RATED]->(m:Movie)
       WHERE u.username = $username
       AND r.rating >= 4
-      WITH collect(m) as likedMovies
+      WITH collect(m) as likedMovies, u
       UNWIND likedMovies as likedMovie
       MATCH (likedMovie)-[:GENRE]->(g:Genre)<-[:GENRE]-(recommended:Movie)
       WHERE NOT recommended IN likedMovies
+      AND NOT EXISTS ((u)-[:RATED]->(recommended))
       RETURN recommended, count(*) as score
       ORDER BY score DESC
       LIMIT 10
