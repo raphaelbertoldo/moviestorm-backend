@@ -103,12 +103,13 @@ type Query {
       """
     )
 
-  fuzzySearchMovies(title: String!): [Movie]
+  fuzzySearchMovies(title: String!, limit: Int): [Movie]
     @cypher(
       statement: """
        MATCH (m:Movie)
       WHERE m.title =~ '(?i).*' + $title + '.*'
        RETURN m
+       LIMIT $limit
       """
     )
 }
