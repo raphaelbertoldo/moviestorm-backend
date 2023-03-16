@@ -2,6 +2,7 @@ directive @constraint(
   min: Int
   max: Int
 ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+# teste
 
 # @fulltext(indexes: [{ indexName: "MovieTitle", fields: ["title"] }])
 type Movie {
