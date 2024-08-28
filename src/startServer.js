@@ -20,7 +20,7 @@ async function startServer({ typeDefs, resolvers }) {
     credentials: true,
   };
 
-  app.use(cors(corsOptions));
+  app.use(cors(corsOptions)); // Habilita CORS
 
   const httpServer = createServer(app);
   const driver = neo4j.driver(
@@ -73,7 +73,7 @@ async function startServer({ typeDefs, resolvers }) {
   server.applyMiddleware({
     app,
     path: "/graphql",
-    cors: false,
+    cors: corsOptions,
   });
 
   httpServer.listen(PORT, () => {
