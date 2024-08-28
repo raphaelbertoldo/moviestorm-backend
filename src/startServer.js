@@ -15,10 +15,11 @@ async function startServer({ typeDefs, resolvers }) {
   const { NEO4J_URI, NEO4J_PASSWORD, PORT } = process.env;
   const app = express();
   var corsOptions = {
-    origin: "*",
+    origin: "http://localhost:8000",
     credentials: true,
   };
-  app.use(cors(corsOptions));
+  // app.use(cors(corsOptions));
+
   const httpServer = createServer(app);
   const driver = neo4j.driver(
     NEO4J_URI,
@@ -46,7 +47,6 @@ async function startServer({ typeDefs, resolvers }) {
 
   const server = new ApolloServer({
     schema,
-    cors: false,
     context: () => {
       return {};
     },
@@ -70,8 +70,8 @@ async function startServer({ typeDefs, resolvers }) {
 
   server.applyMiddleware({
     app,
-    cors: corsOptions,
     path: "/graphql",
+    cors: corsOptions,
   });
 
   httpServer.listen(PORT, () => {
