@@ -14,7 +14,7 @@ dotenv.config();
 async function startServer({ typeDefs, resolvers }) {
   const { NEO4J_URI, NEO4J_PASSWORD, PORT } = process.env;
   const app = express();
-  app.use(cors());
+  app.use(cors({ origin: "*" }));
   const httpServer = createServer(app);
   const driver = neo4j.driver(
     NEO4J_URI,
