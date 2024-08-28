@@ -20,7 +20,7 @@ async function startServer({ typeDefs, resolvers }) {
     credentials: true,
   };
 
-  // app.use(cors(corsOptions)); // Habilita CORS
+  app.use(cors(corsOptions));
 
   const httpServer = createServer(app);
   const driver = neo4j.driver(
