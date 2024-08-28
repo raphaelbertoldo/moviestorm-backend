@@ -7,20 +7,12 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { useServer } from "graphql-ws/lib/use/ws";
-import cors from "cors";
 
 dotenv.config();
 
 async function startServer({ typeDefs, resolvers }) {
   const { NEO4J_URI, NEO4J_PASSWORD, PORT } = process.env;
   const app = express();
-
-  var corsOptions = {
-    origin: "http://localhost:8080",
-    credentials: true,
-  };
-
-  app.use(cors(corsOptions)); // Habilita CORS
 
   const httpServer = createServer(app);
   const driver = neo4j.driver(
@@ -73,7 +65,6 @@ async function startServer({ typeDefs, resolvers }) {
   server.applyMiddleware({
     app,
     path: "/graphql",
-    cors: corsOptions,
   });
 
   httpServer.listen(PORT, () => {
