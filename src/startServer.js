@@ -73,7 +73,7 @@ async function startServer({ typeDefs, resolvers }) {
   server.applyMiddleware({
     app,
     path: "/graphql",
-    cors: corsOptions,
+    cors: false,
   });
 
   httpServer.listen(PORT, () => {
