@@ -14,11 +14,11 @@ dotenv.config();
 async function startServer({ typeDefs, resolvers }) {
   const { NEO4J_URI, NEO4J_PASSWORD, PORT } = process.env;
   const app = express();
-  app.use(cors(corsOptions));
   var corsOptions = {
     origin: "*",
     credentials: true,
   };
+  app.use(cors(corsOptions));
   const httpServer = createServer(app);
   const driver = neo4j.driver(
     NEO4J_URI,
@@ -46,7 +46,7 @@ async function startServer({ typeDefs, resolvers }) {
 
   const server = new ApolloServer({
     schema,
-    cors: corsOptions,
+    cors: false,
     context: () => {
       return {};
     },
