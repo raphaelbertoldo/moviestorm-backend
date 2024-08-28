@@ -42,6 +42,9 @@ async function startServer({ typeDefs, resolvers }) {
 
   const server = new ApolloServer({
     schema,
+    cors: {
+      origin: ["http://localhost:8080", "https://studio.apollographql.com"],
+    },
     context: () => {
       return {};
     },
