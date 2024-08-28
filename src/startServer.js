@@ -70,6 +70,7 @@ async function startServer({ typeDefs, resolvers }) {
 
   server.applyMiddleware({
     app,
+    cors: corsOptions,
     path: "/graphql",
   });
 
