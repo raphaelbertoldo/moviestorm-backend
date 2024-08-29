@@ -7,18 +7,18 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { useServer } from "graphql-ws/lib/use/ws";
-// import cors from "cors";
+import cors from "cors";
 
 dotenv.config();
 
 async function startServer({ typeDefs, resolvers }) {
   const { NEO4J_URI, NEO4J_PASSWORD, PORT } = process.env;
   const app = express();
-  // const corsOption = {
-  //   origin: ["http://localhost:8080"],
-  // };
-  // app.use(cors(corsOption));
+  var corsOptions = {
+    origin: "*",
+  };
   const httpServer = createServer(app);
+
   const driver = neo4j.driver(
     NEO4J_URI,
     neo4j.auth.basic("neo4j", NEO4J_PASSWORD)
@@ -48,6 +48,10 @@ async function startServer({ typeDefs, resolvers }) {
     context: () => {
       return {};
     },
+    cors: {
+      origin: "*",
+      credentials: true,
+    },
     plugins: [
       ApolloServerPluginDrainHttpServer({
         httpServer,
@@ -65,10 +69,12 @@ async function startServer({ typeDefs, resolvers }) {
   });
 
   await server.start();
+  app.options("*", cors(corsOptions));
 
   server.applyMiddleware({
     app,
     path: "/graphql",
+    cors: false,
   });
 
   httpServer.listen(PORT, () => {
