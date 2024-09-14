@@ -6,19 +6,26 @@ directive @constraint(
 # @fulltext(indexes: [{ indexName: "MovieTitle", fields: ["title"] }])
 type Movie {
   id: ID! @id(autogenerate: true)
-  title: String!
-  plot: String!
-  poster: String!
+  tmdbId: Int!
+  title: String! #title
+  plot: String! #overview
+  poster: String! #poster_path
+  bgPoster: String! #poster_path
   year: Int!
-  runtime: Int!
-  released: Date!
+    @cypher(
+      statement: """
+      MATCH (this) RETURN this.released.year
+      """
+    )
+  runtime: Int
+  released: Date! #release_date
   countries: [String!]!
   languages: [String!]!
   actors: [Actor!]!
     @relationship(type: "ACTED_IN", direction: IN, properties: "ActedIn")
-  director: Director!
+  director: Director
     @relationship(type: "DIRECTED", direction: IN, properties: "Directed")
-  genre: Genre!
+  genre: Genre
     @relationship(type: "GENRE", direction: OUT, properties: "GenreName")
 
   similarMovies(id: String): [Movie!]!
@@ -34,7 +41,9 @@ type Movie {
 
 type Actor {
   ActorId: ID! @id(autogenerate: true)
+  tmdbId: Int!
   name: String! @unique
+  imageProfile: String!
   movies: [Movie!]!
     @relationship(type: "ACTED_IN", direction: OUT, properties: "ActedIn")
 }
@@ -47,7 +56,7 @@ type Director {
 }
 
 type Genre {
-  id: ID! @id(autogenerate: true) @alias(property: "dbGenreId") ##Esse campo gera uma novo nome para o campo no banco de dados
+  id: ID! @id(autogenerate: true)
   name: String! @unique
   movies: [Movie!]!
     @relationship(type: "GENRE", direction: IN, properties: "GenreName")
@@ -90,12 +99,24 @@ interface GenreName @relationshipProperties {
   genre: String!
 }
 
+interface BannerPoster {
+  poster: String!
+}
+
 interface Rating @relationshipProperties {
   rating: Float! @constraint(min: 0, max: 5)
   timestamp: DateTime! @timestamp(operations: [CREATE, UPDATE])
 }
 
 type Query {
+  # TODO - use a algo to bring banner movies and paginate this
+  mainBanners: [BannerPoster]
+    @cypher(
+      statement: """
+      MATCH (m: Movie) ORDER BY m.released RETURN m.bgPoster as poster
+      """
+    )
+
   searchMovies(title: String!): [Movie]
     @cypher(
       statement: """
