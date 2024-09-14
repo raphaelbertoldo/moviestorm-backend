@@ -99,12 +99,24 @@ interface GenreName @relationshipProperties {
   genre: String!
 }
 
+interface BannerPoster {
+  poster: String!
+}
+
 interface Rating @relationshipProperties {
   rating: Float! @constraint(min: 0, max: 5)
   timestamp: DateTime! @timestamp(operations: [CREATE, UPDATE])
 }
 
 type Query {
+  # TODO - use a algo to bring banner movies and paginate this
+  mainBanners: [BannerPoster]
+    @cypher(
+      statement: """
+      MATCH (m: Movie) ORDER BY m.released RETURN m.bgPoster as poster
+      """
+    )
+
   searchMovies(title: String!): [Movie]
     @cypher(
       statement: """
