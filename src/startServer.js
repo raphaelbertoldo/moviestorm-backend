@@ -24,7 +24,11 @@ async function startServer() {
       return {};
     },
     cors: {
-      origin: "*",
+      origin: [
+        "*",
+        "http://localhost:8080",
+        "https://studio.apollographql.com",
+      ],
       credentials: true,
     },
     plugins: [
@@ -37,7 +41,11 @@ async function startServer() {
   await server.start();
   app.use(
     cors({
-      origin: ["*", "http://localhost:8080"],
+      origin: [
+        "*",
+        "http://localhost:8080",
+        "https://studio.apollographql.com",
+      ],
       credentials: true,
     })
   );

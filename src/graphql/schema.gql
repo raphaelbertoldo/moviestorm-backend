@@ -18,7 +18,7 @@ type Movie {
       """
     )
   runtime: Int
-  released: Date! #release_date
+  released: DateTime! #release_date
   countries: [String!]!
   languages: [String!]!
   actors: [Actor!]!
