@@ -55,11 +55,20 @@
    ```sh
    npm install
    ```
-4. Start project
+3. Config evironments variables
+4. ```sh
+   NEO4J_URI=
+   NEO4J_USERNAME=neo4j
+   NEO4J_PASSWORD=password
+   AURA_INSTANCEID=1234
+   AURA_INSTANCENAME=Instance01
+   PORT=4000
+   ```
+6. Start project
    ```sh
    npm run dev
    ```
-4. You can see the schema here: http://localhost:PORT/graphql
+7. You can see the schema here: http://localhost:PORT/graphql
 
 <!-- CONTRIBUTING -->
 ## Contributing
